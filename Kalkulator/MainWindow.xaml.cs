@@ -17,141 +17,86 @@ namespace Kalkulator;
 public partial class MainWindow : Window
 {
     double lastnumber, result;
+    SelectedOperator selectedOperator;
     public MainWindow()
     {
         InitializeComponent();
     }
-    private void Seven_Click(object sender, RoutedEventArgs e)
+    private void EqualButton_Click(object sender, RoutedEventArgs e)
     {
-        if(ResultLabel.Content.ToString()=="0")
+        double newNumber;
+        if (double.TryParse(ResultLabel.Content.ToString(), out newNumber))
         {
-            ResultLabel.Content = "7";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}7";
+            switch (selectedOperator)
+            {
+                case SelectedOperator.Addition:
+                    result = SimpleMath.Add(lastnumber,newNumber);
+                    break;
+                case SelectedOperator.Subtraction:
+                    result = SimpleMath.Subtract(lastnumber,newNumber);
+                    break;
+                case SelectedOperator.Multiplication:
+                    result = SimpleMath.Multiply(lastnumber,newNumber);
+                    break;
+                case SelectedOperator.Division:
+                    result = SimpleMath.Divide(lastnumber,newNumber);
+                    break;
+            }
+            ResultLabel.Content = result.ToString();
         }
     }
-
-    private void EightButton_Click(object sender, RoutedEventArgs e)
+    private void OperationButton_Click(object sender, RoutedEventArgs e)
     {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "9";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}8";
-        }
-    }
-
-    private void NineButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "9";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}9";
-        }
-    }
-
-    private void FourButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "4";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}4";
-        }
-    }
-
-    private void FiveButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "5";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}5";
-        }
-    }
-
-    private void SixButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "6";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}6";
-        }
-    }
-
-    private void OneButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "1";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}1";
-        }
-    }
-
-    private void TwoButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "2";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}2";
-        }
-    }
-
-    private void ThreeButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
-        {
-            ResultLabel.Content = "3";
-        }
-        else
-        {
-            ResultLabel.Content = $"{ResultLabel.Content}3";
-        }
-    }
-
-    private void ZeroButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (ResultLabel.Content.ToString() == "0")
+        if (double.TryParse(ResultLabel.Content.ToString(), out lastnumber))
         {
             ResultLabel.Content = "0";
         }
+        if(sender == multiplicationButton)
+            selectedOperator = SelectedOperator.Multiplication;
+        else if (sender == divisionButton)
+            selectedOperator = SelectedOperator.Division;
+        else if (sender == AdditionButton)
+            selectedOperator = SelectedOperator.Addition;
+        else if (sender == SubtractionButton)
+            selectedOperator = SelectedOperator.Subtraction;
+    }
+    private void NumberButton_Click(object sender, RoutedEventArgs e)
+    {
+        int selectedValue = int.Parse((sender as Button).Content.ToString());
+        if (ResultLabel.Content.ToString()=="0")
+        {
+            ResultLabel.Content = selectedValue.ToString();
+        }
         else
         {
-            ResultLabel.Content = $"{ResultLabel.Content}0";
+            ResultLabel.Content = $"{ResultLabel.Content}{selectedValue}";
         }
     }
-
     private void acButton_Click(object sender, RoutedEventArgs e)
     {
         ResultLabel.Content = "0";
+        result = 0;
+        lastnumber = 0;
     }
 
     private void percentageButton_Click(object sender, RoutedEventArgs e)
     {
-        if(double.TryParse(ResultLabel.Content.ToString(), out double lastNumber))
+        double tempNumber;
+        if (double.TryParse(ResultLabel.Content.ToString(), out tempNumber))
         {
-            lastNumber /= 100;
-            ResultLabel.Content = lastNumber.ToString();
+            tempNumber /= 100;
+            if(lastnumber != 0)
+            {
+                tempNumber *= lastnumber;
+            }
+            ResultLabel.Content = tempNumber.ToString();
+        }
+    }
+    private void pointButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ResultLabel.Content.ToString().Contains("."))
+        {
+            ResultLabel.Content = $"{ResultLabel.Content}.";
         }
     }
 
@@ -161,6 +106,37 @@ public partial class MainWindow : Window
         {
             lastNumber *= -1;
             ResultLabel.Content = lastNumber.ToString();
+        }
+    }
+    public enum SelectedOperator
+    {
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division
+    }
+    public class SimpleMath
+    {
+        public static double Add(double x, double y)
+        {
+            return x + y;
+        }
+        public static double Subtract(double x, double y)
+        {
+            return x - y;
+        }
+        public static double Multiply(double x, double y)
+        {
+            return x * y;
+        }
+        public static double Divide(double x, double y)
+        {
+            if(y == 0)
+            {
+                MessageBox.Show("Cannot divide by zero","Wrong operation",MessageBoxButton.OK,MessageBoxImage.Error);
+                return 0;
+            }
+            return x / y;
         }
     }
 }
